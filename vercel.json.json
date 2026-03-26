@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "api/claude.js": {
+      "maxDuration": 30
+    },
+    "api/perplexity.js": {
+      "maxDuration": 15
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}

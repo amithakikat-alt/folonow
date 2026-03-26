@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoloNow — Turn ideas into ventures</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white:#ffffff;
+  --off:#fefefe;
+  --surface:#f8f8f8;
+  --surface2:#f2f2f2;
+  --border:#e8e8e8;
+  --border2:#d4d4d4;
+  --ink:#1a1a1a;
+  --ink2:#555555;
+  --ink3:#999999;
+  --accent:#1a1a1a;
+  --accent-light:#f0f0f0;
+  --r:8px; --rl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--white);
+  color:var(--ink);
+  font-size:14px;line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  height:56px;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:10px;
+}
+.logo{
+  font-family:'Inter',sans-serif;
+  font-size:19px;font-weight:400;
+  font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-.02em;color:var(--ink);letter-spacing:-.02em;
+  margin-left:auto;
+}
+.logo span{font-weight:400;opacity:.5;letter-spacing:-.01em;}
+.tb-right{display:flex;align-items:center;gap:8px;margin-right:auto;}
+
+
+
+/* Status */
+.spill{font-size:11px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--ink3);background:var(--surface);transition:all .25s;}
+.s-work{background:#fff8f0;color:#c06010;border-color:#f0d8b8;}
+.s-done{background:#f0faf4;color:#2a7a4a;border-color:#c0e8d0;}
+.s-err{background:#fff0f0;color:#c02020;border-color:#f0c8c8;}
+
+.tb-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--ink3);cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s;font-weight:500;}
+.tb-btn:hover{border-color:var(--border2);color:var(--ink2);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;padding-top:56px;min-height:100vh;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--off);
+  border-left:1px solid var(--border);
+  padding:20px 0;
+  display:flex;flex-direction:column;gap:24px;
+  position:sticky;top:56px;height:calc(100vh - 56px);
+  overflow-y:auto;
+}
+.sb-sec{padding:0 16px;}
+.sb-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;font-family:'DM Mono',monospace;padding:0 2px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;color:var(--ink3);font-size:13px;cursor:pointer;margin-bottom:2px;transition:all .12s;font-weight:400;}
+.nav-item:hover{background:var(--surface);color:var(--ink2);}
+.nav-item.on{background:var(--surface2);color:var(--ink);font-weight:500;}
+.ni-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0;}
+
+.step-item{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:6px;margin-bottom:2px;transition:all .15s;}
+.step-item.on{background:var(--surface2);}
+.step-item.dn{background:var(--surface);}
+.sn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3);flex-shrink:0;transition:all .2s;}
+.step-item.dn .sn{background:var(--ink);border-color:var(--ink);color:#fff;}
+.step-item.on .sn{background:var(--ink);border-color:var(--ink);color:#fff;}
+.st{font-size:12px;color:var(--ink3);font-weight:600;font-family:'Syne',sans-serif;letter-spacing:-.01em;}
+.step-item.on .st,.step-item.dn .st{color:var(--ink2);}
+.ss{font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;}
+
+/* ── MAIN ── */
+.main{overflow-y:auto;background:var(--white);}
+
+/* ── HERO ── */
+#hero-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 56px);padding:60px 24px;
+  text-align:center;
+  position:relative;
+}
+/* Subtle grid */
+#hero-screen::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px;opacity:.5;
+  mask-image:radial-gradient(ellipse 75% 60% at 50% 50%,black,transparent);
+}
+.hc{position:relative;z-index:1;max-width:620px;}
+.h-eye{
+  font-size:10px;font-family:'DM Mono',monospace;
+  color:var(--ink3);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:28px;
+  animation:fadeD .4s ease both;
+}
+@keyframes fadeD{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+h1{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(42px,7vw,72px);
+  line-height:1.0;letter-spacing:-.04em;
+  color:var(--ink);margin-bottom:20px;font-family:'Syne',sans-serif;font-weight:800;
+  animation:fadeU .6s .1s both;
+}
+h1 em{font-style:italic;color:var(--ink2);}
+@keyframes fadeU{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.h-sub{
+  font-size:15px;color:var(--ink3);font-weight:400;
+  max-width:460px;margin:0 auto 40px;line-height:1.7;
+  animation:fadeU .6s .18s both;
+}
+.h-sub strong{color:var(--ink2);font-weight:500;}
+
+/* Input card */
+.icard{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--rl);padding:20px 22px;
+  width:100%;max-width:560px;
+  animation:fadeU .6s .26s both;
+  transition:border-color .15s,box-shadow .15s;
+}
+.icard:focus-within{border-color:var(--border2);box-shadow:0 0 0 3px rgba(0,0,0,0.04);}
+.ilbl{display:block;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:9px;}
+#idea-input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px 14px;font-size:14px;
+  font-family:'Inter',sans-serif;font-weight:400;
+  color:var(--ink);resize:none;height:96px;line-height:1.6;outline:none;
+  transition:border-color .12s;
+}
+#idea-input:focus{border-color:var(--border2);background:var(--white);}
+#idea-input::placeholder{color:var(--ink3);font-weight:400;}
+.ifooter{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px;flex-wrap:wrap;}
+.tags{display:flex;gap:4px;flex-wrap:wrap;}
+.itag{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ink3);cursor:pointer;transition:all .1s;user-select:none;font-weight:400;}
+.itag:hover{border-color:var(--border2);color:var(--ink2);}
+.itag.sel{background:var(--ink);color:#fff;border-color:var(--ink);}
+.go-btn{
+  background:var(--ink);color:#fff;border:none;
+  border-radius:var(--r);padding:11px 24px;font-size:13px;
+  font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;
+  transition:all .15s;flex-shrink:0;letter-spacing:.01em;
+}
+.go-btn:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.12);}
+.go-btn:active{transform:translateY(0);}
+.go-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* Stats */
+.hstats{display:flex;gap:44px;justify-content:center;margin-top:56px;flex-wrap:wrap;animation:fadeU .6s .35s both;}
+.hst{text-align:center;}
+.hst-n{font-family:'Inter',sans-serif;font-size:28px;font-weight:400;color:var(--ink);}
+.hst-l{font-size:11px;color:var(--ink3);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.04em;}
+
+/* ── RESULTS ── */
+#results-screen{display:none;padding:26px 30px;}
+.rh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:14px;flex-wrap:wrap;}
+.rtitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:400;color:var(--ink);}
+.rmeta{font-size:11px;color:var(--ink3);margin-top:2px;font-family:'DM Mono',monospace;}
+.racts{display:flex;gap:6px;flex-wrap:wrap;}
+.rbtn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink3);transition:all .12s;font-weight:400;}
+.rbtn:hover{border-color:var(--border2);color:var(--ink2);}
+.rbtn.pri{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:500;}
+.rbtn.pri:hover{background:#333;}
+
+/* Pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:20px;}
+@media(max-width:640px){.pipeline{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:420px){.pipeline{grid-template-columns:repeat(2,1fr);}}
+.pstep{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px;position:relative;overflow:hidden;transition:all .2s;}
+.pstep.pending{opacity:.35;}
+.pstep.active{border-color:var(--border2);}
+.pstep.done{border-color:var(--border2);}
+.pstep::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .3s;}
+.pstep.done::after{background:var(--ink);}
+.pstep.active::after{background:var(--ink2);animation:pbar 1.4s ease-in-out infinite;}
+@keyframes pbar{0%,100%{opacity:1}50%{opacity:.4}}
+.pn{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);margin-bottom:4px;letter-spacing:.04em;}
+.pt{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:1px;font-family:'Syne',sans-serif;}
+.ps{font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;}
+.pst{margin-top:6px;font-size:10px;font-family:'DM Mono',monospace;}
+.pst.done{color:var(--ink);}
+.pst.active{color:var(--ink2);}
+.pst.pend{color:var(--ink3);}
+
+/* Phase cards */
+.phcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;transition:border-color .2s;animation:slideIn .35s ease both;}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.phh{padding:13px 17px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--surface);}
+.phicon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.phinfo h3{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:1px;font-family:'Syne',sans-serif;letter-spacing:-.01em;}
+.phinfo span{font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;}
+.phbadge{margin-right:auto;font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:4px;font-weight:500;border:1px solid;}
+.bwork{background:#fff8f0;color:#b06010;border-color:#e8c898;}
+.bdone{background:#f0faf4;color:#2a6a40;border-color:#b8e0c8;}
+.bpend{background:var(--surface);color:var(--ink3);border-color:var(--border);}
+.phbody{padding:15px 17px;}
+.phfooter{padding:0 17px 12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+
+/* Content */
+.cb{font-size:13px;line-height:1.8;color:var(--ink2);font-weight:400;}
+.cb h4{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin:14px 0 5px;font-family:'DM Mono',monospace;}
+.cb h4:first-child{margin-top:0;}
+.cb p{margin-bottom:8px;}
+.cb ul{padding-right:16px;margin-bottom:8px;}
+.cb li{margin-bottom:4px;}
+.cb strong{font-weight:600;color:var(--ink);}
+.live-tag{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 10px;background:var(--surface);border-right:2px solid var(--ink3);font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;border-radius:0 4px 4px 0;}
+
+.tcs{display:flex;flex-wrap:wrap;gap:4px;}
+.tc{display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;}
+.tcd{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+
+.editbox{margin:0 17px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px;}
+.editbox textarea{width:100%;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;font-weight:400;color:var(--ink);resize:none;height:58px;outline:none;transition:border-color .12s;}
+.editbox textarea:focus{border-color:var(--border2);}
+.editbox textarea::placeholder{color:var(--ink3);}
+.ebfoot{display:flex;gap:6px;margin-top:7px;}
+.esubmit{background:var(--ink);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;transition:background .12s;}
+.esubmit:hover{background:#333;}
+.ecancel{background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink3);transition:all .12s;}
+.ecancel:hover{border-color:var(--border2);color:var(--ink2);}
+.ebtn{background:transparent;border:1px solid var(--border);border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--ink3);transition:all .1s;}
+.ebtn:hover{border-color:var(--border2);color:var(--ink2);}
+
+/* Approval */
+.approval{border-radius:var(--rl);padding:18px 22px;margin:12px 0;background:var(--surface);border:1px solid var(--border);}
+.approval h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.approval p{font-size:12px;color:var(--ink3);margin-bottom:13px;font-weight:400;}
+.appbtns{display:flex;gap:8px;flex-wrap:wrap;}
+.bapp{background:var(--ink);color:#fff;border:none;border-radius:7px;padding:9px 20px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s;}
+.bapp:hover{background:#333;transform:translateY(-1px);}
+.bapp.warn{background:#c06010;}
+.bapp.warn:hover{background:#a05008;}
+.bsec{background:transparent;color:var(--ink3);border:1px solid var(--border);border-radius:7px;padding:9px 16px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s;}
+.bsec:hover{border-color:var(--border2);color:var(--ink2);}
+.trail{display:flex;flex-wrap:wrap;margin-top:12px;gap:2px;}
+.tr{font-size:10px;color:var(--ink3);padding:4px 10px 4px 0;font-family:'DM Mono',monospace;}
+.tr.done{color:var(--ink2);}
+.tr.active{color:#c06010;}
+
+/* Dashboard */
+#dash-screen{display:none;padding:26px 30px;}
+.dh h2{font-family:'Inter',sans-serif;font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.dh p{font-size:12px;color:var(--ink3);margin-bottom:20px;font-family:'DM Mono',monospace;font-weight:400;}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;}
+.dcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:14px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.dcard:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,0.06);transform:translateY(-1px);}
+.dcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border2);}
+.dcard.dc3::before,.dcard.dc2::before{background:var(--ink);}
+.dctitle{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif;}
+.dcmeta{font-size:10px;color:var(--ink3);margin-bottom:8px;font-family:'DM Mono',monospace;}
+.dcdel{position:absolute;top:8px;left:8px;background:transparent;border:none;color:var(--ink3);cursor:pointer;font-size:12px;opacity:.25;transition:opacity .12s;padding:2px 5px;}
+.dcdel:hover{opacity:.8;}
+.new-card{background:transparent;border:1px dashed var(--border2);border-radius:var(--rl);padding:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--ink3);min-height:84px;transition:all .12s;font-family:'Inter',sans-serif;}
+.new-card:hover{border-color:var(--ink3);color:var(--ink2);}
+
+/* Settings modal */
+.modal-bg{display:none;position:fixed;inset:0;z-index:500;background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:26px 28px;width:100%;max-width:420px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+.mcls{position:absolute;top:14px;left:14px;background:var(--surface);border:1px solid var(--border);border-radius:5px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--ink3);transition:all .12s;}
+.mcls:hover{border-color:var(--border2);color:var(--ink2);}
+.modal h2,font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.msub{font-size:12px;color:var(--ink3);margin-bottom:20px;font-weight:400;}
+.fg{margin-bottom:14px;}
+.flabel{display:block;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.finput{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;font-size:13px;font-family:'DM Mono',monospace;color:var(--ink);outline:none;font-weight:400;transition:border-color .12s;}
+.finput:focus{border-color:var(--border2);}
+.fhint{font-size:11px;color:var(--ink3);margin-top:5px;font-weight:400;}
+.fhint a{color:var(--ink2);}
+.ibox{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:16px;font-size:12px;color:var(--ink2);line-height:1.65;font-weight:400;}
+.mfoot{display:flex;gap:8px;}
+.msave{flex:1;background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:background .12s;}
+.msave:hover{background:#333;}
+.mcancel{padding:10px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--r);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink3);transition:all .12s;}
+.mcancel:hover{border-color:var(--border2);color:var(--ink2);}
+
+/* Utils */
+.skel{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--ink3);margin:0 2px;animation:bnc 1.1s infinite ease-in-out;}
+.dots span:nth-child(2){animation-delay:.18s;}
+.dots span:nth-child(3){animation-delay:.36s;}
+@keyframes bnc{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.fade-in{animation:fadeIn .3s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 18px;border-radius:6px;font-size:12px;z-index:999;opacity:0;transition:opacity .22s;pointer-events:none;font-family:'DM Mono',monospace;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">Folo<span style="font-weight:400;opacity:.55;">Now</span></div>
+  <div class="tb-right">
+    <span class="spill" id="spill">Ready</span>
+    <button class="tb-btn" onclick="showDash()">Projects</button>
+    <button class="tb-btn" onclick="openSettings()">Pro ⚙</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sb-sec">
+    <div class="sb-lbl">Navigation</div>
+    <div class="nav-item on" id="nav-new" onclick="showHero()"><div class="ni-dot"></div><span>New venture</span></div>
+    <div class="nav-item" id="nav-dash" onclick="showDash()"><div class="ni-dot"></div><span>Projects</span></div>
+  </div>
+  <div class="sb-sec" id="steps-sec" style="display:none">
+    <div class="sb-lbl">Pipeline</div>
+    <div class="step-item" id="sb-1"><div class="sn">1</div><div><div class="st">Idea analysis</div><div class="ss">Claude</div></div></div>
+    <div class="step-item" id="sb-2"><div class="sn">2</div><div><div class="st">Market research</div><div class="ss">Perplexity</div></div></div>
+    <div class="step-item" id="sb-3"><div class="sn">3</div><div><div class="st">Business plan</div><div class="ss">Claude</div></div></div>
+    <div class="step-item" id="sb-4"><div class="sn">4</div><div><div class="st">Marketing</div><div class="ss">Claude</div></div></div>
+    <div class="step-item" id="sb-5"><div class="sn">5</div><div><div class="st">Build plan</div><div class="ss">Claude</div></div></div>
+  </div>
+  <div class="sb-sec" id="pj-sec" style="display:none">
+    <div class="sb-lbl">Active Project</div>
+    <div id="sb-pjname" style="font-size:11px;color:var(--ink3);padding:4px;line-height:1.7;font-family:'DM Mono',monospace;"></div>
+  </div>
+  <div class="sb-sec" style="margin-top:auto">
+    <div class="sb-lbl">powered by</div>
+    <div style="font-size:10px;color:var(--ink3);line-height:2.2;font-family:'DM Mono',monospace;">Claude Sonnet<br>Perplexity Sonar<br>FoloNow Beta</div>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div id="hero-screen">
+    <div class="hc">
+      <div class="h-eye">Beta · Claude Sonnet · Perplexity</div>
+      <h1>One idea.<br><em style="font-style:italic;font-weight:800;">One full venture.</em></h1>
+      <p class="h-sub">Describe your idea — FoloNow analyzes, researches, and builds a full business plan automatically.</p>
+      <div class="icard">
+        <label class="ilbl">Describe your idea</label>
+        <textarea id="idea-input" placeholder="e.g. An app connecting language learners with native speakers, with AI generating personalized exercises..."></textarea>
+        <div class="ifooter">
+          <div class="tags">
+            <span class="itag" onclick="toggleTag(this)">EdTech</span>
+            <span class="itag" onclick="toggleTag(this)">FinTech</span>
+            <span class="itag" onclick="toggleTag(this)">HealthTech</span>
+            <span class="itag" onclick="toggleTag(this)">SaaS</span>
+            <span class="itag" onclick="toggleTag(this)">B2B</span>
+          </div>
+          <button class="go-btn" id="go-btn" onclick="startAnalysis()"><span>Launch</span> →</button>
+        </div>
+      </div>
+      <div class="hstats">
+        <div class="hst"><div class="hst-n">4</div><div class="hst-l">AI Stages</div></div>
+        <div class="hst"><div class="hst-n">2</div><div class="hst-l">Live APIs</div></div>
+        <div class="hst"><div class="hst-n">5</div><div class="hst-l">Languages</div></div>
+        <div class="hst"><div class="hst-n">&lt;10min</div><div class="hst-l">Idea → Plan</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dash-screen">
+    <div class="dh"><h2>Projects</h2><p>All your ventures</p></div>
+    <div class="dgrid" id="dgrid"><div class="new-card" onclick="showHero()">+ <span>New venture</span></div></div>
+  </div>
+
+  <div id="results-screen">
+    <div class="rh">
+      <div><div class="rtitle" id="rtitle">Venture analysis</div><div class="rmeta" id="rmeta"></div></div>
+      <div class="racts">
+        <button class="rbtn" onclick="exportPDF()">↓ PDF</button>
+        <button class="rbtn" onclick="showDash()">←</button>
+        <button class="rbtn pri" onclick="showHero()">+ New</button>
+      </div>
+    </div>
+    <div class="pipeline" id="pipeline">
+      <div class="pstep pending" id="pipe-1"><div class="pn">01</div><div class="pt">Idea analysis</div><div class="ps">Claude</div><div class="pst pend">○ Pending</div></div>
+      <div class="pstep pending" id="pipe-2"><div class="pn">02</div><div class="pt">Market research</div><div class="ps">Perplexity</div><div class="pst pend">○ Pending</div></div>
+      <div class="pstep pending" id="pipe-3"><div class="pn">03</div><div class="pt">Business plan</div><div class="ps">Claude</div><div class="pst pend">○ Pending</div></div>
+      <div class="pstep pending" id="pipe-4"><div class="pn">04</div><div class="pt">Marketing</div><div class="ps">Claude</div><div class="pst pend">○ Pending</div></div>
+      <div class="pstep pending" id="pipe-5"><div class="pn">05</div><div class="pt">Build plan</div><div class="ps">Claude</div><div class="pst pend">○ Pending</div></div>
+    </div>
+
+    <div class="phcard" id="card-1">
+      <div class="phh"><div class="phicon" style="background:var(--surface2);">🎯</div><div class="phinfo"><h3>Idea analysis</h3><span>Claude Sonnet</span></div><span class="phbadge bpend" id="badge-1">○ Pending</span></div>
+      <div class="phbody" id="body-1"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-1" style="display:none"><div class="tcs"><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div><button class="ebtn" onclick="toggleEdit(1)">✏ Edit</button></div>
+      <div class="editbox" id="edit-1" style="display:none"><textarea id="et-1" placeholder="What to change?"></textarea><div class="ebfoot"><button class="esubmit" onclick="refinePhase(1)">Update →</button><button class="ecancel" onclick="toggleEdit(1)">Cancel</button></div></div>
+    </div>
+
+    <div class="phcard" id="card-2">
+      <div class="phh"><div class="phicon" style="background:var(--surface2);">📊</div><div class="phinfo"><h3>Market research</h3><span id="ph2src">Perplexity + Claude</span></div><span class="phbadge bpend" id="badge-2">○ Pending</span></div>
+      <div class="phbody" id="body-2"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-2" style="display:none"><div class="tcs"><span class="tc"><span class="tcd" style="background:#4a6aaa"></span>Perplexity</span><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div><button class="ebtn" onclick="toggleEdit(2)">✏ Edit</button></div>
+      <div class="editbox" id="edit-2" style="display:none"><textarea id="et-2" placeholder="What to change?"></textarea><div class="ebfoot"><button class="esubmit" onclick="refinePhase(2)">Update →</button><button class="ecancel" onclick="toggleEdit(2)">Cancel</button></div></div>
+    </div>
+
+    <div class="approval" id="appr1" style="display:none">
+      <h3>Initial analysis complete</h3>
+      <p>Claude analyzed the idea and researched the market. Continue to the business plan?</p>
+      <div class="appbtns">
+        <button class="bapp" onclick="continueFlow()">Continue to business plan →</button>
+        <button class="bsec" onclick="toggleEdit(1)">Edit analysis</button>
+        <button class="bsec" onclick="toggleEdit(2)">Edit market</button>
+      </div>
+      <div class="trail">
+        <div class="tr done">✓ Idea analysis</div>
+        <div class="tr done">✓ Market research</div>
+        <div class="tr" id="tr3">○ Business plan</div>
+        <div class="tr" id="tr4">○ Marketing</div>
+      </div>
+    </div>
+
+    <div class="phcard" id="card-3">
+      <div class="phh"><div class="phicon" style="background:var(--surface2);">📋</div><div class="phinfo"><h3>Full business plan</h3><span>Claude Sonnet</span></div><span class="phbadge bpend" id="badge-3">○ Pending</span></div>
+      <div class="phbody" id="body-3"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-3" style="display:none"><div class="tcs"><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div><button class="ebtn" onclick="toggleEdit(3)">✏ Edit</button></div>
+      <div class="editbox" id="edit-3" style="display:none"><textarea id="et-3" placeholder="What to change?"></textarea><div class="ebfoot"><button class="esubmit" onclick="refinePhase(3)">Update →</button><button class="ecancel" onclick="toggleEdit(3)">Cancel</button></div></div>
+    </div>
+
+    <div class="phcard" id="card-4">
+      <div class="phh"><div class="phicon" style="background:var(--surface2);">🚀</div><div class="phinfo"><h3>Marketing plan</h3><span>Claude + HeyGen</span></div><span class="phbadge bpend" id="badge-4">○ Pending</span></div>
+      <div class="phbody" id="body-4"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-4" style="display:none"><div class="tcs"><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div><button class="ebtn" onclick="toggleEdit(4)">✏ Edit</button></div>
+      <div class="editbox" id="edit-4" style="display:none"><textarea id="et-4" placeholder="What to change?"></textarea><div class="ebfoot"><button class="esubmit" onclick="refinePhase(4)">Update →</button><button class="ecancel" onclick="toggleEdit(4)">Cancel</button></div></div>
+    </div>
+
+
+    <div class="phcard" id="card-5">
+      <div class="phh">
+        <div class="phicon" style="background:var(--surface2);">🛠</div>
+        <div class="phinfo"><h3>Build Your MVP</h3><span>Landing page · App screens · Tech stack · Sprint plan</span></div>
+        <span class="phbadge bpend" id="badge-5">○ Pending</span>
+      </div>
+      <div class="phbody" id="body-5"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-5" style="display:none">
+        <div class="tcs"><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div>
+        <button class="ebtn" onclick="toggleEdit(5)">✏ Edit</button>
+      </div>
+      <div class="editbox" id="edit-5" style="display:none">
+        <textarea id="et-5" placeholder="What to change?"></textarea>
+        <div class="ebfoot">
+          <button class="esubmit" onclick="refinePhase(5)">Update →</button>
+          <button class="ecancel" onclick="toggleEdit(5)">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phcard" id="card-5">
+      <div class="phh"><div class="phicon" style="background:var(--surface2);">🌐</div><div class="phinfo"><h3>Website &amp; Landing Page</h3><span>Claude — Structure, Copy, Tech Stack</span></div><span class="phbadge bpend" id="badge-5">○ Pending</span></div>
+      <div class="phbody" id="body-5"><div style="height:12px"></div></div>
+      <div class="phfooter" id="footer-5" style="display:none"><div class="tcs"><span class="tc"><span class="tcd" style="background:var(--ink)"></span>Claude</span></div><button class="ebtn" onclick="toggleEdit(5)">✏ Edit</button></div>
+      <div class="editbox" id="edit-5" style="display:none"><textarea id="et-5" placeholder="What to change?"></textarea><div class="ebfoot"><button class="esubmit" onclick="refinePhase(5)">Update →</button><button class="ecancel" onclick="toggleEdit(5)">Cancel</button></div></div>
+    </div>
+    <div class="approval" id="appr-final" style="display:none;border-color:var(--border2);">
+      <h3>Your venture is ready</h3>
+      <p>All 5 stages complete — your venture plan is ready to build.</p>
+      <div class="appbtns">
+        <button class="bapp" onclick="exportPDF()">↓ Export full PDF</button>
+        <button class="bapp warn" onclick="toast('Coming soon: OpenFlow!')">Launch on OpenFlow →</button>
+        <button class="bsec" onclick="showHero()">New venture</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div class="modal-bg" id="settings-modal">
+  <div class="modal">
+    <button class="mcls" onclick="closeSettings()">✕</button>
+    <h2>About FoloNow</h2>
+    <p class="msub">AI-powered venture analysis platform.</p>
+    <div class="ibox">
+      <strong>Claude Sonnet</strong> — idea analysis, business plan, marketing strategy.<br>
+      <strong>Perplexity Sonar</strong> — live market data, recent funding rounds, competitors.
+    </div>
+    <div class="ibox" style="margin-top:8px;">
+      Both APIs run securely on the server — no keys needed from you.
+    </div>
+    <div class="mfoot">
+      <button class="msave" onclick="closeSettings()">Got it</button>
+    </div>
+  </div>
+</div>
+<div id="toast"><div id="toast"></div>
+
+
+<script>
+const PK='fn_projects', SK='fn_settings';
+let idea='', tags=[], pd={id:null,idea:'',tags:'',p1:'',p2:'',p2r:'',p3:'',p4:'',p5:'',phase:0,at:''};
+
+/* ── SETTINGS ── */
+function gset(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){return{}}}
+function openSettings(){
+  const s=gset();
+  const ci=document.getElementById('claude-key-inp');
+  const pi=document.getElementById('pplx-inp');
+  if(ci&&s.claudeKey)ci.value=s.claudeKey;
+  if(pi&&s.perplexityKey)pi.value=s.perplexityKey;
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
+function saveSettings(){const k=document.getElementById('pplx-inp').value.trim();localStorage.setItem(SK,JSON.stringify({perplexityKey:k}));closeSettings();toast(k?'✓ Perplexity connected':'Settings saved');}
+
+/* ── NAV ── */
+function showHero(){hide('dash-screen');hide('results-screen');show('hero-screen');setNav('nav-new');hide('steps-sec');hide('pj-sec');setTimeout(()=>document.getElementById('idea-input')?.focus(),50);}
+function showDash(){hide('hero-screen');hide('results-screen');show('dash-screen');setNav('nav-dash');renderDash();}
+function showResults(){hide('hero-screen');hide('dash-screen');show('results-screen');show('steps-sec');show('pj-sec');}
+function setNav(id){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));document.getElementById(id)?.classList.add('on');}
+function show(id){const e=document.getElementById(id);if(e)e.style.display='block';}
+function hide(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+
+function toggleTag(el){el.classList.toggle('sel');const tx=el.textContent;tags=el.classList.contains('sel')?[...tags,tx]:tags.filter(x=>x!==tx);}
+
+/* ── STATUS ── */
+function setSpill(s,tx){const p=document.getElementById('spill');if(!p)return;p.className='spill '+(s==='work'?'s-work':s==='done'?'s-done':s==='err'?'s-err':'');p.textContent=(s==='done'?'✓ ':s==='err'?'✕ ':'● ')+tx;}
+function setSb(n,s){const e=document.getElementById('sb-'+n);if(e)e.className='step-item '+(s==='active'?'on':s==='done'?'dn':'');}
+function setBadge(n,s){
+  const b=document.getElementById('badge-'+n);if(!b)return;
+  if(s==='working'){b.className='phbadge bwork';b.innerHTML='<span class="dots"><span></span><span></span><span></span></span> '+'Processing...';}
+  else if(s==='done'){b.className='phbadge bdone';b.textContent='✓ Done';}
+  else{b.className='phbadge bpend';b.textContent='○ Pending';}
+}
+function setPipe(n,s){
+  const e=document.getElementById('pipe-'+n);if(!e)return;
+  e.className='pstep '+s;
+  const st=e.querySelector('.pst');if(st){st.className='pst '+(s==='done'?'done':s==='active'?'active':'pend');st.textContent=s==='done'?'✓ Done':s==='active'?'● '+'Processing...':'○ Pending';}
+}
+
+/* ── SKELETON ── */
+function showLoad(id,msg){
+  const b=document.getElementById(id);if(!b)return;
+  b.innerHTML=`<div style="display:flex;align-items:center;gap:9px;padding:4px 0 12px;color:var(--text3);font-size:11px;font-family:'DM Mono',monospace;"><span class="dots"><span></span><span></span><span></span></span>${msg||'...'}</div>`+
+  `<div class="skel" style="height:12px;width:80%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:95%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:68%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:88%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:55%"></div>`;
+}
+
+/* ── MARKDOWN ── */
+function md(tx){
+  return tx.replace(/^### (.+)/gm,'<h4>$1</h4>').replace(/^## (.+)/gm,'<h4>$1</h4>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[*-] (.+)/gm,'<li>$1</li>')
+    .replace(/^(\d+)\. (.+)/gm,'<li>$2</li>').replace(/(<li>[\s\S]*?<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
+    .replace(/\n\n+/g,'</p><p>').trim();
+}
+function rend(id,tx,extra){const b=document.getElementById(id);if(b)b.innerHTML=`<div class="cb fade-in"><p>${md(tx)}</p>${extra||''}</div>`;}
+function showFoot(n){const f=document.getElementById('footer-'+n);if(f)f.style.display='flex';}
+
+/* ── CLAUDE ── */
+async function callClaude(prompt, maxT=1200){
+  try{
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxT,
+        system: 'Reply in English only. You are FoloNow — a venture analysis engine. Critical, specific, direct. Use ### for headers, ** for bold. 300-500 words.',
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const d = await res.json();
+    if(d.error) return {ok:false, text:'Error: '+d.error};
+    return {ok:true, text: d.content?.[0]?.text || ''};
+  } catch(e) {
+    return {ok:false, text:'Connection error: '+e.message};
+  }
+}
+
+async function callPplx(q){
+  try{
+    const res = await fetch('/api/perplexity', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: q})
+    });
+    const d = await res.json();
+    if(!d.available) return null;
+    return d.result || null;
+  } catch(e) {
+    return null;
+  }
+}
+
+/* ── PROMPTS ── */
+function P1(i,tg){return`## Idea Analysis\n**Idea:** "${i}" | **Sector:** ${tg}\n\n### Core Value Proposition\n### Primary Target Audience\n### Problem Being Solved\n### Competitive Advantage\n### Main Risk + Mitigation`;}
+function P2(i){return`## Market Research — "${i}"\n\n### TAM/SAM/SOM\n### 3 Market-Driving Trends\n### Competitor Map (3-4: Name | Funding | Weakness)\n### Gap Opportunity\n### Recommended Entry Point`;}
+function P2s(i,live,base){return`## Market Research Synthesis\n**Idea:** "${i}"\n\n**Live Perplexity Data:**\n${live}\n\n**Initial Analysis:**\n${base.slice(0,350)}\n\nWrite updated analysis using live data:\n### TAM/SAM/SOM with real numbers\n### Latest Trends ${new Date().getFullYear()}\n### Competitors with real funding\n### Gap Opportunity\n### Recommended Entry Point`;}
+function P3(i,mkt){return`## Business Plan — "${i}"\nMarket: ${mkt.slice(0,400)}\n\n### Revenue Model (2-3 streams + prices)\n### 12-Month Forecast\n### MVP Plan — 3 Sprints\n### Setup Budget\n### 3 Risks + Mitigation`;}
+function P4(i,biz){return`## Marketing Plan — "${i}"\n${biz.slice(0,350)}\n\n### First 90 Days\n### 3 Core Channels (Channel | Tactic | AI Tool | KPI)\n### 5 Content Ideas\n### Weekly KPIs\n### Bootstrap Budget under $500/month`;}
+function P5(idea, biz, mkt) {
+  return `## MVP Build Plan — "${idea}"
+Business context: ${biz.slice(0,300)}
+Market: ${mkt.slice(0,200)}
+
+### Landing Page Copy
+Write complete landing page copy:
+- Hero headline (bold, benefit-focused, max 8 words)
+- Hero subheadline (one sentence, specific)
+- 3 feature blocks (title + 2-sentence description each)
+- Social proof section (2 fictional but realistic testimonials)
+- CTA text + button copy
+
+### App Screens (MVP)
+List the 5 most essential screens/pages for the MVP:
+For each screen: Name | Purpose | Key UI elements | User action
+
+### Tech Stack Recommendation
+Recommend the simplest stack to ship in 2 weeks:
+- Frontend: (with reason)
+- Backend: (with reason)  
+- Database: (with reason)
+- Hosting: (with reason)
+- Estimated monthly cost at launch
+
+### 2-Week Sprint Plan
+Week 1: What to build
+Week 2: What to launch
+Definition of Done: what must work on Day 14`;
+}
+
+function P5(i,biz,mkt){return`## Website & Landing Page Plan — "${i}"
+Business context: ${biz.slice(0,300)}
+Market context: ${mkt.slice(0,200)}
+
+### Landing Page Structure
+Hero section: headline + sub-headline + CTA button
+What sections should appear (in order) and why
+
+### Hero Headline Options
+3 punchy headline options for the landing page
+
+### Key Copywriting
+- Value proposition (1 sentence)
+- 3 bullet benefits  
+- Social proof placeholder
+- CTA button text
+
+### Tech Stack Recommendation
+Best stack for MVP (no-code / low-code / custom) with reasoning
+
+### Domain & Hosting
+Suggested domain name + hosting recommendation + cost
+
+### Launch Checklist
+10 must-have items before going live`;}
+
+function Pfix(n,i,orig,fb){const names=['','Idea Analysis','Market Research','Business Plan','Marketing Plan','Website Plan'];return`## Update ${names[n]||'Stage'} — "${i}"\n\n**Current:**\n${orig.slice(0,500)}\n\n**Requested change:**\n${fb}\n\nWrite updated version implementing the change.`;}
+
+/* ── MAIN FLOW ── */
+async function startAnalysis(){
+  const v=document.getElementById('idea-input').value.trim();
+  if(!v){document.getElementById('idea-input').focus();return;}
+  if(!gset().claudeKey){
+    toast('⚙ Please add your Claude API key in Settings first');
+    openSettings();
+    return;
+  }
+  idea=v;const tg=tags.length?tags.join(', '):'General';
+  pd={id:Date.now(),idea:v,tags:tg,p1:'',p2:'',p2r:'',p3:'',p4:'',p5:'',phase:0,at:new Date().toLocaleString('he-IL')};
+  document.getElementById('go-btn').disabled=true;
+  showResults();
+  document.getElementById('rtitle').textContent=v.split(' ').slice(0,5).join(' ')+(v.split(' ').length>5?'...':'');
+  document.getElementById('rmeta').textContent=`${tg} · ${pd.at}`;
+  document.getElementById('sb-pjname').textContent=v.slice(0,28)+(v.length>28?'...':'');
+  [1,2,3,4,5].forEach(n=>{setBadge(n,'pend');setSb(n,'');setPipe(n,'pending');const f=document.getElementById('footer-'+n);if(f)f.style.display='none';const e=document.getElementById('edit-'+n);if(e)e.style.display='none';});
+  hide('appr1');hide('appr-final');
+  setSpill('work','Analyzing value proposition and target audience...');
+  setSb(1,'active');setBadge(1,'working');setPipe(1,'active');
+  showLoad('body-1','Analyzing value proposition and target audience...');
+  document.getElementById('card-1')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r1=await callClaude(P1(v,tg));
+  if(!r1.ok){setSpill('err','Error');toast(r1.text);document.getElementById('go-btn').disabled=false;return;}
+  pd.p1=r1.text;pd.phase=1;rend('body-1',r1.text);showFoot(1);setBadge(1,'done');setSb(1,'done');setPipe(1,'done');
+  setSb(2,'active');setBadge(2,'working');setPipe(2,'active');
+  const hasPP=!!gset().perplexityKey;
+  showLoad('body-2',hasPP?'🔍 '+'Researching market and competitors...':'Researching market and competitors...');
+  const[ppr,r2b]=await Promise.all([callPplx(`Market size, competitors, funding for: ${v}. USD figures, company names.`),callClaude(P2(v))]);
+  let f2=r2b.text;
+  if(ppr&&r2b.ok){const s=await callClaude(P2s(v,ppr,r2b.text));if(s.ok){f2=s.text;pd.p2r=ppr;}document.getElementById('ph2src').textContent='Perplexity (live) + Claude';}
+  pd.p2=f2;pd.phase=2;
+  const ln=ppr?'<div class="live-tag">✓ Live market data from Perplexity</div>':'';
+  rend('body-2',f2,ln);showFoot(2);setBadge(2,'done');setSb(2,'done');setPipe(2,'done');
+  setSpill('idle','○ Pending'.replace('○ ',''));
+  document.getElementById('appr1').style.display='block';
+  document.getElementById('appr1')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  save();
+}
+
+async function continueFlow(){
+  hide('appr1');setSpill('work','Building revenue model and forecast...');
+  setSb(3,'active');setBadge(3,'working');setPipe(3,'active');
+  showLoad('body-3','Building revenue model and forecast...');
+  document.getElementById('card-3')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r3=await callClaude(P3(idea,pd.p2));
+  if(!r3.ok){setSpill('err','Error');toast(r3.text);return;}
+  pd.p3=r3.text;pd.phase=3;rend('body-3',r3.text);showFoot(3);setBadge(3,'done');setSb(3,'done');setPipe(3,'done');
+  document.getElementById('tr3')?.classList.add('done');
+  document.getElementById('tr4')?.classList.add('done');
+  setSb(4,'active');setBadge(4,'working');setPipe(4,'active');
+  showLoad('body-4','Preparing marketing plan...');setSpill('work','Preparing marketing plan...');
+  const r4=await callClaude(P4(idea,pd.p3));
+  if(!r4.ok){setSpill('err','Error');toast(r4.text);return;}
+  pd.p4=r4.text;pd.phase=4;rend('body-4',r4.text);showFoot(4);setBadge(4,'done');setSb(4,'done');setPipe(4,'done');
+  document.getElementById('tr4')?.classList.add('done');
+
+  // Phase 5: Build plan
+  setSb(5,'active');setBadge(5,'working');setPipe(5,'active');
+  showLoad('body-5','Building MVP plan, landing page copy & tech stack...');
+  document.getElementById('card-5')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r5=await callClaude(P5(idea,pd.p3,pd.p2));
+  if(!r5.ok){setSpill('err','Error');toast(r5.text);return;}
+  pd.p5=r5.text;pd.phase=5;
+  rend('body-5',r5.text);showFoot(5);
+  setBadge(5,'done');setSb(5,'done');setPipe(5,'done');
+
+  // Phase 5 — Website Builder
+  setSb(5,'active');setBadge(5,'working');setPipe(5,'active');
+  showLoad('body-5','Planning your website and landing page...');
+  setSpill('work','Building website plan...');
+  document.getElementById('card-5')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r5web=await callClaude(P5(idea,pd.p3,pd.p2),1400);
+  if(!r5web.ok){setSpill('err','Error');toast(r5web.text);return;}
+  pd.p5=r5web.text;pd.phase=5;rend('body-5',r5.text);showFoot(5);setBadge(5,'done');setSb(5,'done');setPipe(5,'done');
+  setSpill('done','Complete!');save();document.getElementById('go-btn').disabled=false;
+  document.getElementById('appr-final').style.display='block';
+  document.getElementById('appr-final')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ── EDIT ── */
+function toggleEdit(n){const b=document.getElementById('edit-'+n);const op=b.style.display!=='none';b.style.display=op?'none':'block';if(!op)document.getElementById('et-'+n)?.focus();}
+async function refinePhase(n){
+  const fb=document.getElementById('et-'+n)?.value?.trim();if(!fb)return;
+  const orgs={1:pd.p1,2:pd.p2,3:pd.p3,4:pd.p4};
+  toggleEdit(n);setBadge(n,'working');setSb(n,'active');showLoad('body-'+n,'Updating...');
+  const r=await callClaude(Pfix(n,idea,orgs[n]||'',fb));
+  if(!r.ok){setBadge(n,'done');toast(r.text);return;}
+  if(n===1)pd.p1=r.text;if(n===2)pd.p2=r.text;if(n===3)pd.p3=r.text;if(n===4)pd.p4=r.text;
+  const ln=(n===2&&pd.p2r)?'<div class="live-tag">✓ Updated with Perplexity data</div>':'';
+  rend('body-'+n,r.text,ln);showFoot(n);setBadge(n,'done');setSb(n,'done');save();toast('✓ Stage '+n+' updated');
+}
+
+/* ── SAVE/LOAD ── */
+function save(){try{const ps=JSON.parse(localStorage.getItem(PK)||'[]');const i=ps.findIndex(x=>x.id===pd.id);if(i>=0)ps[i]={...pd};else ps.unshift({...pd});if(ps.length>15)ps.pop();localStorage.setItem(PK,JSON.stringify(ps));}catch(e){}}
+function renderDash(){
+  const ps=JSON.parse(localStorage.getItem(PK)||'[]');
+  const g=document.getElementById('dgrid');
+  const pl=['','Idea analysis','Market research','Business plan','Marketing','Complete ✓'];
+  const cols=['var(--text3)','var(--gold)','var(--accent)','var(--accent2)'];
+  g.innerHTML=`<div class="new-card" onclick="showHero()">+ ${'New venture'}</div>`+
+    ps.map(p=>`<div class="dcard dc${Math.min(p.phase-1,3)}" onclick="loadPj(${p.id})">
+      <button class="dcdel" onclick="event.stopPropagation();delPj(${p.id})">✕</button>
+      <div class="dctitle">${esc(p.idea.slice(0,50)+(p.idea.length>50?'...':''))}</div>
+      <div class="dcmeta">${p.at||''}</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);">
+        <span style="width:5px;height:5px;border-radius:50%;background:${cols[Math.min(p.phase,3)]};display:inline-block;"></span>
+        ${pl[Math.min(p.phase,4)]}
+      </div></div>`).join('');
+}
+function loadPj(id){
+  const ps=JSON.parse(localStorage.getItem(PK)||'[]'),p=ps.find(x=>x.id===id);if(!p)return;
+  pd={...p};idea=p.idea;tags=p.tags.split(', ').filter(Boolean);
+  document.getElementById('go-btn').disabled=true;
+  showResults();
+  document.getElementById('rtitle').textContent=p.idea.slice(0,40)+(p.idea.length>40?'...':'');
+  document.getElementById('rmeta').textContent=`${p.tags} · ${p.at}`;
+  document.getElementById('sb-pjname').textContent=p.idea.slice(0,28);
+  [[1,p.p1],[2,p.p2],[3,p.p3],[4,p.p4],[5,p.p5||'']].forEach(([n,tx])=>{
+    if(!tx)return;
+    if(tx){const ln=(n===2&&p.p2r)?'<div class="live-tag">✓ Perplexity</div>':'';rend('body-'+n,tx,ln);showFoot(n);setBadge(n,'done');setSb(n,'done');setPipe(n,'done');}
+  });
+  if(p.phase>=2)document.getElementById('appr1').style.display='block';
+  if(p.phase>=5)document.getElementById('appr-final').style.display='block';
+  toast('✓ Project loaded');
+}
+  function delPj(id){if(!confirm('Delete this project?'))return;const ps=JSON.parse(localStorage.getItem(PK)||'[]').filter(x=>x.id!==id);localStorage.setItem(PK,JSON.stringify(ps));renderDash();}
+function esc(tx){return tx.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── PDF ── */
+function exportPDF(){
+  if(!pd.p3){toast('Complete at least 3 stages first');return;}
+  const w=window.open('','_blank');
+  const sec=(h,b)=>b?`<h2>${h}</h2><div>${mh(b)}</div>`:'';
+  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>${esc(pd.idea.slice(0,40))}</title>
+  <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 28px;color:#111;font-size:13.5px;line-height:1.75;}
+  h1{font-size:23px;border-bottom:3px solid #e04d0e;padding-bottom:9px;margin-bottom:4px;}
+  .meta{font-size:11px;color:#888;margin-bottom:28px;}
+  h2{font-size:15px;background:#f5f2ec;padding:8px 13px;border-right:3px solid #e04d0e;margin-top:30px;}
+  h4{font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px;}
+  strong{color:#111;}ul{padding-right:17px;}li{margin-bottom:3px;}
+  .footer{margin-top:36px;font-size:10px;color:#bbb;border-top:1px solid #eee;padding-top:10px;text-align:center;}
+  @media print{h2{page-break-inside:avoid;}}</style></head><body>
+  <h1>${esc(pd.idea)}</h1>
+  <div class="meta">${pd.tags} | ${pd.at} | Folo · folonow.com${pd.p2r?' + Perplexity':''}</div>
+  ${sec('Idea Analysis',pd.p1)}${sec('Market Research',pd.p2)}${sec('Business Plan',pd.p3)}${sec('Marketing Plan',pd.p4)}${sec('Website Plan',pd.p5)}
+  <div class="footer">Generated by FoloNow · folonow.com</div>
+  <scr"+"ipt>window.onload=()=>window.print();<"+"/script></body></html>`);
+  w.document.close();
+}
+function mh(tx){return'<p>'+tx.replace(/^### (.+)/gm,'</p><h4>$1</h4><p>').replace(/^## (.+)/gm,'</p><h4>$1</h4><p>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[*-] (.+)/gm,'<li>$1</li>').replace(/\n\n/g,'</p><p>').trim()+'</p>';}
+
+/* ── TOAST ── */
+function toast(msg){const t2=document.getElementById('toast');t2.textContent=msg;t2.style.opacity='1';clearTimeout(t2._t);t2._t=setTimeout(()=>t2.style.opacity='0',2500);}
+
+/* ── EXTRA i18n keys ── */
+document.getElementById('idea-input')?.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) startAnalysis();
+});
+showHero();
+</script>
+</body>
+</html>
